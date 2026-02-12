@@ -1,7 +1,14 @@
 package com.antigiro.antigiro.models;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "residuos")
@@ -60,5 +67,13 @@ public class Residuo {
 
     public void setFecha(LocalDate fecha) {
         this.fecha = fecha;
+    }
+
+    @Transient
+    public Double getPesoTotal() {
+        if (pesoUnitario != null && cantidad != null) {
+            return pesoUnitario * cantidad;
+        }
+        return 0.0;
     }
 }

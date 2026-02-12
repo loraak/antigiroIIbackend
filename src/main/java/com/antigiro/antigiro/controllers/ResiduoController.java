@@ -1,9 +1,19 @@
 package com.antigiro.antigiro.controllers;
 
 
-import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.antigiro.antigiro.models.Residuo;
 import com.antigiro.antigiro.repositories.ResiduoRepository;
 
@@ -19,26 +29,20 @@ public class ResiduoController {
         this.repository = repository;
     }
 
-    // ========================
     // GET - Listar todos
-    // ========================
     @GetMapping
     public List<Residuo> listar() {
         return repository.findAll();
     }
 
-    // ========================
     // GET - Buscar por ID
-    // ========================
     @GetMapping("/{id}")
     public Residuo obtener(@PathVariable Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Residuo no encontrado"));
     }
 
-    // ========================
     // POST - Crear
-    // ========================
     @PostMapping
     public Residuo crear(@RequestBody Residuo residuo) {
 
@@ -50,9 +54,7 @@ public class ResiduoController {
         return repository.save(residuo);
     }
 
-    // ========================
     // PUT - Actualizar
-    // ========================
     @PutMapping("/{id}")
     public Residuo actualizar(@PathVariable Long id, @RequestBody Residuo residuo) {
 
@@ -67,9 +69,7 @@ public class ResiduoController {
         return repository.save(existente);
     }
 
-    // ========================
     // DELETE - Eliminar
-    // ========================
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
         repository.deleteById(id);
