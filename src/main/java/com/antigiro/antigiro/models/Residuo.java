@@ -1,15 +1,10 @@
 package com.antigiro.antigiro.models;
 
-import java.time.LocalDate;
+import jakarta.persistence.*;
+import lombok.Data;
+import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-
+@Data
 @Entity
 @Table(name = "residuos")
 public class Residuo {
@@ -21,59 +16,38 @@ public class Residuo {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(name = "peso_unitario", nullable = false)
     private Double pesoUnitario;
 
-    @Column(nullable = false)
-    private Integer cantidad;
+    private String descripcion;
 
-    @Column(nullable = false)
-    private LocalDate fecha;
+    private String imagen; 
 
-    public Residuo() {
-    }
+    @Column(name = "fecha_ingreso")
+    private LocalDateTime fechaIngreso;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "usuario_ingreso")
+    private Integer usuarioIngreso;
 
-    public String getNombre() {
-        return nombre;
-    }
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    @Column(name = "usuario_actualizacion")
+    private Integer usuarioActualizacion;
 
-    public Double getPesoUnitario() {
-        return pesoUnitario;
-    }
+    @Column(columnDefinition = "int default 1")
+    private Integer estado;
 
-    public void setPesoUnitario(Double pesoUnitario) {
-        this.pesoUnitario = pesoUnitario;
-    }
-
-    public Integer getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(Integer cantidad) {
-        this.cantidad = cantidad;
-    }
-
-    public LocalDate getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
-    }
-
-    @Transient
-    public Double getPesoTotal() {
-        if (pesoUnitario != null && cantidad != null) {
-            return pesoUnitario * cantidad;
+    @PrePersist
+    protected void onCreate() {
+        this.fechaIngreso = LocalDateTime.now();
+        if (this.estado == null) {
+            this.estado = 1;
         }
-        return 0.0;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.fechaActualizacion = LocalDateTime.now();
     }
 }
