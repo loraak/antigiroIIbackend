@@ -30,7 +30,13 @@ public class ResiduoController {
 
     @PostMapping
     public Residuo create(@RequestBody Residuo residuo) { 
-        return repository.save(residuo); 
+        if (residuo.getNombre() != null) {
+            residuo.setNombre(residuo.getNombre().toUpperCase());
+        }
+        if (residuo.getDescripcion() != null) {
+            residuo.setDescripcion(residuo.getDescripcion().toUpperCase());
+        }
+        return repository.save(residuo);
     }
 
     @GetMapping("/{id}")
@@ -43,9 +49,15 @@ public class ResiduoController {
     @PutMapping("/{id}")
     public ResponseEntity<Residuo> update(@PathVariable Long id, @RequestBody Residuo detalles) {
         return repository.findById(id).map(residuo -> {
-            residuo.setNombre(detalles.getNombre());
+            if (detalles.getNombre() != null) {
+                residuo.setNombre(detalles.getNombre().toUpperCase());
+            }
             residuo.setPesoUnitario(detalles.getPesoUnitario());
-            residuo.setDescripcion(detalles.getDescripcion());
+            if (detalles.getDescripcion() != null) {
+                residuo.setDescripcion(detalles.getDescripcion().toUpperCase());
+            } else {
+                residuo.setDescripcion(null);
+            }
             residuo.setImagen(detalles.getImagen());
             residuo.setUsuarioActualizacion(detalles.getUsuarioActualizacion());
             

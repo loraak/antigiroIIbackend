@@ -2,6 +2,7 @@ package com.antigiro.antigiro.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,24 +17,27 @@ public class Residuo {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(name = "peso_unitario", nullable = false)
-    private Double pesoUnitario;
+    @Column(name = "peso_unitario", nullable = false, precision = 10, scale = 2)
+    private BigDecimal pesoUnitario;
 
     private String descripcion;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String imagen; 
 
     @Column(name = "fecha_ingreso")
     private LocalDateTime fechaIngreso;
 
-    @Column(name = "usuario_ingreso")
-    private Integer usuarioIngreso;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_ingreso", referencedColumnName = "id")
+    private User usuarioIngreso;
 
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    @Column(name = "usuario_actualizacion")
-    private Integer usuarioActualizacion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_actualizacion", referencedColumnName = "id")
+    private User usuarioActualizacion;
 
     @Column(columnDefinition = "int default 1")
     private Integer estado;
