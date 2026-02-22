@@ -1,7 +1,6 @@
 package com.antigiro.antigiro.models;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +43,6 @@ public class PeriodoRecoleccion {
     @JoinColumn(name = "usuario_ingreso")
     private User usuarioIngreso;
 
-    //  Para que se añada la fecha de inicio al momento de ingresar un residuo al inventario. 
     @PrePersist 
     protected void onCreate() { 
         this.fechaIngreso = LocalDateTime.now();
