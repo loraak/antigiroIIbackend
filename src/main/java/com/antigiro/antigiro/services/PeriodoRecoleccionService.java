@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,7 +34,6 @@ public class PeriodoRecoleccionService {
     public PeriodoRecoleccion crearNuevoPeriodoSinUsuario() {
         PeriodoRecoleccion periodo = new PeriodoRecoleccion();
         periodo.setFechaIngreso(LocalDateTime.now());
-        periodo.setFechaFin(LocalDate.now().plusMonths(6));
         periodo.setEstado("ACTIVO");
         periodo.setPesoTotal(BigDecimal.ZERO); 
         return repository.save(periodo);

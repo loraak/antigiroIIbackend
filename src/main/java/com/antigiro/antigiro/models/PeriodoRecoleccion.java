@@ -24,12 +24,6 @@ public class PeriodoRecoleccion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "fecha_inicio", nullable = false)
-    private LocalDate fechaInicio;
-    
-    @Column(name = "fecha_fin", nullable = false)
-    private LocalDate fechaFin;
-    
     @Column(name = "peso_total", precision = 10, scale = 2)
     private BigDecimal pesoTotal;
     
