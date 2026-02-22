@@ -51,10 +51,19 @@ public class InventarioResiduo {
     @PrePersist
     protected void onCreate() {
         this.fechaRegistro = LocalDateTime.now();
+        calcularPesoTotal(); 
     }
     
     @PreUpdate
     protected void onUpdate() {
         this.fechaActualizacion = LocalDateTime.now();
+        calcularPesoTotal(); 
+    }
+
+    private void calcularPesoTotal() { 
+        if (this.residuo != null && this.cantidad != null) {
+            this.pesoTotal = this.residuo.getPesoUnitario()
+                .multiply(new BigDecimal(this.cantidad)); 
+        }
     }
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -42,10 +43,22 @@ public class PeriodoRecoleccion {
     @JoinColumn(name = "usuario_cierre")
     private User usuarioCierre;
     
-    @Column(name = "fecha_ingreso")
+    @Column(name = "fecha_ingreso", nullable = false, updatable = false)
     private LocalDateTime fechaIngreso;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_ingreso")
     private User usuarioIngreso;
+
+    //  Para que se añada la fecha de inicio al momento de ingresar un residuo al inventario. 
+    @PrePersist 
+    protected void onCreate() { 
+        this.fechaIngreso = LocalDateTime.now();
+        if (this.estado == null) { 
+            this.estado = "ACTIVO"; 
+        }
+        if (this.pesoTotal == null) {
+            this.pesoTotal = BigDecimal.ZERO; 
+        }
+    }
 }

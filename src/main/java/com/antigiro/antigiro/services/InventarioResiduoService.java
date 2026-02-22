@@ -3,7 +3,6 @@ package com.antigiro.antigiro.services;
 import com.antigiro.antigiro.models.InventarioResiduo;
 import com.antigiro.antigiro.models.PeriodoRecoleccion;
 import com.antigiro.antigiro.models.Residuo;
-import com.antigiro.antigiro.models.User; 
 import com.antigiro.antigiro.repositories.InventarioResiduoRepository;
 import com.antigiro.antigiro.repositories.ResiduoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +29,9 @@ public class InventarioResiduoService {
     }
 
     @Transactional
-    public InventarioResiduo agregarOActualizar(Long residuoId, Integer cantidad, User usuario) {
-        // Obtener o crear período activo
-        PeriodoRecoleccion periodoActivo = periodoService.obtenerOCrearPeriodoActivo(usuario);
+    public InventarioResiduo agregarOActualizarSinUsuario(Long residuoId, Integer cantidad) {
+        PeriodoRecoleccion periodoActivo = periodoService.obtenerOCrearPeriodoActivoSinUsuario();
         
-        // Buscar si ya existe este residuo en el inventario del período actual
         InventarioResiduo inventario = repository
                 .findByPeriodoIdAndResiduoId(periodoActivo.getId(), residuoId)
                 .orElse(null);
@@ -43,18 +40,19 @@ public class InventarioResiduoService {
                 .orElseThrow(() -> new RuntimeException("Residuo no encontrado"));
         
         if (inventario == null) {
-            // Crear nuevo registro
             inventario = new InventarioResiduo();
             inventario.setPeriodo(periodoActivo);
             inventario.setResiduo(residuo);
             inventario.setCantidad(cantidad);
-            inventario.setUsuarioRegistro(usuario);
         } else {
-            // Actualizar cantidad existente
             inventario.setCantidad(inventario.getCantidad() + cantidad);
         }
         
-        return repository.save(inventario);
+        InventarioResiduo resultado = repository.save(inventario);
+        
+        actualizarPesoTotalPeriodo(periodoActivo.getId());
+        
+        return resultado;
     }
 
     @Transactional
@@ -63,12 +61,22 @@ public class InventarioResiduoService {
                 .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
         
         inventario.setCantidad(nuevaCantidad);
-        return repository.save(inventario);
+        InventarioResiduo resultado = repository.save(inventario);
+        
+        actualizarPesoTotalPeriodo(inventario.getPeriodo().getId());
+        
+        return resultado;
     }
 
     @Transactional
     public void eliminar(Long id) {
+        InventarioResiduo inventario = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Inventario no encontrado"));
+        
+        Long periodoId = inventario.getPeriodo().getId();
         repository.deleteById(id);
+        
+        actualizarPesoTotalPeriodo(periodoId);
     }
 
     public BigDecimal calcularPesoTotalPeriodo(Long periodoId) {
@@ -76,5 +84,11 @@ public class InventarioResiduoService {
         return inventarios.stream()
                 .map(InventarioResiduo::getPesoTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
+    @Transactional
+    private void actualizarPesoTotalPeriodo(Long periodoId) {
+        BigDecimal pesoTotal = calcularPesoTotalPeriodo(periodoId);
+        periodoService.actualizarPesoTotal(periodoId, pesoTotal);
     }
 }

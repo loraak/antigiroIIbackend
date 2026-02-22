@@ -1,11 +1,9 @@
 package com.antigiro.antigiro.controllers;
 
 import com.antigiro.antigiro.models.InventarioResiduo;
-import com.antigiro.antigiro.models.User;
 import com.antigiro.antigiro.services.InventarioResiduoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,14 +24,11 @@ public class InventarioResiduoController {
     }
 
     @PostMapping("/agregar")
-    public ResponseEntity<InventarioResiduo> agregar(
-            @RequestBody Map<String, Object> payload,
-            Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+    public ResponseEntity<InventarioResiduo> agregar(@RequestBody Map<String, Object> payload) {
         Long residuoId = Long.valueOf(payload.get("residuoId").toString());
         Integer cantidad = Integer.valueOf(payload.get("cantidad").toString());
         
-        InventarioResiduo inventario = service.agregarOActualizar(residuoId, cantidad, user);
+        InventarioResiduo inventario = service.agregarOActualizarSinUsuario(residuoId, cantidad);
         return ResponseEntity.ok(inventario);
     }
 
