@@ -1,12 +1,14 @@
 package com.antigiro.antigiro.services;
 
 import com.antigiro.antigiro.models.PeriodoRecoleccion;
+import com.antigiro.antigiro.models.User;
 import com.antigiro.antigiro.repositories.PeriodoRecoleccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,36 +27,42 @@ public class PeriodoRecoleccionService {
     }
 
     @Transactional
-    public PeriodoRecoleccion obtenerOCrearPeriodoActivoSinUsuario() {
+    public PeriodoRecoleccion obtenerOCrearPeriodoActivo(User usuario) {
         return repository.findFirstByEstadoOrderByFechaIngresoDesc("ACTIVO")
-                .orElseGet(this::crearNuevoPeriodoSinUsuario);
+                .orElseGet(() -> crearNuevoPeriodo(usuario));
     }
 
     @Transactional
-    public PeriodoRecoleccion crearNuevoPeriodoSinUsuario() {
+    public PeriodoRecoleccion crearNuevoPeriodo(User usuario) {
         PeriodoRecoleccion periodo = new PeriodoRecoleccion();
-        periodo.setFechaIngreso(LocalDateTime.now());
+        
+        LocalDate hoy = LocalDate.now();
+        periodo.setFechaCierre(hoy.plusMonths(6).atStartOfDay());
         periodo.setEstado("ACTIVO");
-        periodo.setPesoTotal(BigDecimal.ZERO); 
+        periodo.setPesoTotal(BigDecimal.ZERO);
+        periodo.setFechaIngreso(LocalDateTime.now());
+        periodo.setUsuarioIngreso(usuario);
+        
         return repository.save(periodo);
     }
 
-    @Transactional 
-    public void actualizarPesoTotal(Long periodoId, BigDecimal pesoTotal) {  
-        PeriodoRecoleccion periodo = repository.findById(periodoId) 
-        .orElseThrow(() -> new RuntimeException("Periodo no encontrado")); 
-        periodo.setPesoTotal(pesoTotal); 
-        repository.save(periodo); 
-    }
-
     @Transactional
-    public PeriodoRecoleccion cerrarPeriodoSinUsuario(Long id) {
+    public PeriodoRecoleccion cerrarPeriodo(Long id, User usuario) {
         PeriodoRecoleccion periodo = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Período no encontrado"));
         
         periodo.setEstado("CERRADO");
         periodo.setFechaCierre(LocalDateTime.now());
+        periodo.setUsuarioCierre(usuario);
         
         return repository.save(periodo);
+    }
+    
+    @Transactional
+    public void actualizarPesoTotal(Long periodoId, BigDecimal pesoTotal) {
+        PeriodoRecoleccion periodo = repository.findById(periodoId)
+                .orElseThrow(() -> new RuntimeException("Período no encontrado"));
+        periodo.setPesoTotal(pesoTotal);
+        repository.save(periodo);
     }
 }
