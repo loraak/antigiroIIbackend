@@ -5,6 +5,9 @@ import com.antigiro.antigiro.services.CustomUserDetailsService;
 import com.antigiro.antigiro.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,4 +90,12 @@ public class UserController {
         }
         return ResponseEntity.ok("Logout exitoso");
     }
+
+    //Administrativo. 
+    @GetMapping("/administrativo")
+    public List<User> listarUsuarios() {
+        return servicio.listarUsuarios();
+    }
+
+    
 }
