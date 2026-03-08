@@ -10,15 +10,14 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "usuarios")
-public class User {
+public class UserCrud {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; 
     private String nombre; 
-    private String apellidoPaterno; 
-    private String apellidoMaterno; 
+    private String apellidoPaterno;
+    private String apellidoMaterno;
     private String email; 
-    private String contrasena; 
-    private int rol; 
+    private int rol;
     private int estatus; 
 }
