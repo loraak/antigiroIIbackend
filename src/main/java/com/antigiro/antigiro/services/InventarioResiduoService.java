@@ -3,6 +3,7 @@ package com.antigiro.antigiro.services;
 import com.antigiro.antigiro.models.InventarioResiduo;
 import com.antigiro.antigiro.models.PeriodoRecoleccion;
 import com.antigiro.antigiro.models.Residuo;
+import com.antigiro.antigiro.models.User;
 import com.antigiro.antigiro.repositories.InventarioResiduoRepository;
 import com.antigiro.antigiro.repositories.ResiduoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,8 @@ public class InventarioResiduoService {
     }
 
     @Transactional
-    public InventarioResiduo agregarOActualizarSinUsuario(Long residuoId, Integer cantidad) {
-        PeriodoRecoleccion periodoActivo = periodoService.obtenerOCrearPeriodoActivoSinUsuario();
+    public InventarioResiduo agregarOActualizar(Long residuoId, Integer cantidad, User usuario) {
+        PeriodoRecoleccion periodoActivo = periodoService.obtenerOCrearPeriodoActivo(usuario);
         
         InventarioResiduo inventario = repository
                 .findByPeriodoIdAndResiduoId(periodoActivo.getId(), residuoId)
@@ -44,6 +45,7 @@ public class InventarioResiduoService {
             inventario.setPeriodo(periodoActivo);
             inventario.setResiduo(residuo);
             inventario.setCantidad(cantidad);
+            inventario.setUsuarioRegistro(usuario);
         } else {
             inventario.setCantidad(inventario.getCantidad() + cantidad);
         }
