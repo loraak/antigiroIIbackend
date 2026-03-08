@@ -1,9 +1,11 @@
 package com.antigiro.antigiro.services;
 
+import com.antigiro.antigiro.models.InventarioResiduo;
 import com.antigiro.antigiro.models.PeriodoRecoleccion;
 import com.antigiro.antigiro.models.User;
 import com.antigiro.antigiro.repositories.PeriodoRecoleccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,13 @@ public class PeriodoRecoleccionService {
 
     @Autowired
     private PeriodoRecoleccionRepository repository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Lazy
+    @Autowired
+    private InventarioResiduoService inventarioService;
 
     public List<PeriodoRecoleccion> listarTodos() {
         return repository.findAll();
@@ -54,8 +63,12 @@ public class PeriodoRecoleccionService {
         periodo.setEstado("CERRADO");
         periodo.setFechaCierre(LocalDateTime.now());
         periodo.setUsuarioCierre(usuario);
-        
-        return repository.save(periodo);
+        PeriodoRecoleccion periodoGuardado = repository.save(periodo);
+
+        List<InventarioResiduo> inventario = inventarioService.listarPorPeriodo(id);
+        emailService.enviarResumenPeriodo(periodoGuardado, inventario);
+
+        return periodoGuardado; 
     }
     
     @Transactional
