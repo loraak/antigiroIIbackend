@@ -1,5 +1,6 @@
 package com.antigiro.antigiro.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.antigiro.antigiro.models.User;
+import com.antigiro.antigiro.models.UserCrud;
+import com.antigiro.antigiro.repositories.UserCrudRepository;
 import com.antigiro.antigiro.repositories.UserRepository;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository repositorio; 
+
+    @Autowired
+    private UserCrudRepository userCrudRepositorio; 
 
     @Autowired 
     private BCryptPasswordEncoder encriptador; 
@@ -53,6 +59,31 @@ public class UserService {
             }
         }
         return null; 
+    }
+
+    public List<UserCrud> listarUsuarios() {
+        return userCrudRepositorio.findAll();
+    }
+
+    public void eliminarUsuario(Long id) { 
+        User user = repositorio.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado")); 
+        user.setEstatus(user.getEstatus() == 1 ? 0 : 1); 
+        repositorio.save(user); 
+    }
+
+    public User editarUsuario(Long id, User datosNuevos) { 
+        User user = repositorio.findById(id) 
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado")); 
+        user.setNombre(datosNuevos.getNombre()); 
+        user.setApellidoPaterno(datosNuevos.getApellidoPaterno()); 
+        user.setApellidoMaterno(datosNuevos.getApellidoMaterno()); 
+        user.setEmail(datosNuevos.getEmail()); 
+        user.setRol(datosNuevos.getRol()); 
+        if (datosNuevos.getContrasena() != null && !datosNuevos.getContrasena().isBlank()) {
+            user.setContrasena(encriptador.encode(datosNuevos.getContrasena())); 
+        }
+        return repositorio.save(user); 
     }
 }
 
