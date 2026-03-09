@@ -1,16 +1,17 @@
 package com.antigiro.antigiro.services;
 
-import com.antigiro.antigiro.models.PeriodoRecoleccion;
-import com.antigiro.antigiro.models.User;
-import com.antigiro.antigiro.repositories.PeriodoRecoleccionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.antigiro.antigiro.models.PeriodoRecoleccion;
+import com.antigiro.antigiro.models.User;
+import com.antigiro.antigiro.repositories.PeriodoRecoleccionRepository;
 
 @Service
 public class PeriodoRecoleccionService {
@@ -31,6 +32,11 @@ public class PeriodoRecoleccionService {
         return repository.findFirstByEstadoOrderByFechaIngresoDesc("ACTIVO")
                 .orElseGet(() -> crearNuevoPeriodo(usuario));
     }
+
+    public PeriodoRecoleccion obtenerActivo() {
+    return repository.findFirstByEstadoOrderByFechaIngresoDesc("ACTIVO")
+        .orElseThrow(() -> new RuntimeException("No hay periodo activo"));
+}
 
     @Transactional
     public PeriodoRecoleccion crearNuevoPeriodo(User usuario) {

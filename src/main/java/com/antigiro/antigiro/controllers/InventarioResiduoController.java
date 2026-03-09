@@ -1,17 +1,29 @@
 package com.antigiro.antigiro.controllers;
 
-import com.antigiro.antigiro.models.InventarioResiduo;
-import com.antigiro.antigiro.models.User;
-import com.antigiro.antigiro.services.CustomUserDetailsService;
-import com.antigiro.antigiro.services.InventarioResiduoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.antigiro.antigiro.models.InventarioResiduo;
+import com.antigiro.antigiro.models.PeriodoRecoleccion;
+import com.antigiro.antigiro.models.User;
+import com.antigiro.antigiro.services.CustomUserDetailsService;
+import com.antigiro.antigiro.services.InventarioResiduoService;
+import com.antigiro.antigiro.services.NotificacionService;
+import com.antigiro.antigiro.services.PeriodoRecoleccionService;
 
 @RestController
 @RequestMapping("/api/inventario")
@@ -23,6 +35,10 @@ public class InventarioResiduoController {
     
     @Autowired
     private CustomUserDetailsService userDetailsService;
+    @Autowired
+    private PeriodoRecoleccionService periodoService;
+    @Autowired
+    private NotificacionService notificacionService;
 
     @GetMapping("/periodo/{periodoId}")
     public List<InventarioResiduo> listarPorPeriodo(@PathVariable Long periodoId) {
@@ -30,15 +46,20 @@ public class InventarioResiduoController {
     }
 
     @PostMapping("/agregar")
-    public ResponseEntity<InventarioResiduo> agregar(
-            @RequestBody Map<String, Object> payload,
-            Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> agregar(
+        @RequestBody Map<String, Object> payload,
+        Authentication authentication) {
         User User = obtenerUserAutenticado(authentication);
         Long residuoId = Long.valueOf(payload.get("residuoId").toString());
         Integer cantidad = Integer.valueOf(payload.get("cantidad").toString());
         
         InventarioResiduo inventario = service.agregarOActualizar(residuoId, cantidad, User);
-        return ResponseEntity.ok(inventario);
+        PeriodoRecoleccion periodo = periodoService.obtenerActivo();
+        NotificacionService.EmailResultado emailResultado = notificacionService.verificarLlenado(periodo);
+        return ResponseEntity.ok(Map.of(
+            "inventario", inventario,
+            "emailResultado", emailResultado
+        ));
     }
 
     @PutMapping("/{id}")
